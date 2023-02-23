@@ -84,7 +84,7 @@ for val in range(len(n)):
     plt.ylabel('Mean Square Error')
   
     # giving a title to my graph
-    plt.title('Learning Curve of '+str(n[val] +". Momentum:"+str(B)));
+    plt.title('Learning Curve of '+str(n[val])+". Momentum:"+str(B));
   
     # function to show the plot
     plt.show()
