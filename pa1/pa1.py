@@ -38,7 +38,8 @@ for y in range(len(n)):
     outputLayer = randWeightBias();
     localGradientOutputLayer = 0;
     localGradientLayer1 = np.zeros(4);
-    localGradientLayer1Old = np.zeros(4)
+    outputChange = 0;
+    layer1Change =np.zeros((4,5));
     while not endCondition:
         for j in range(len(inputPat)):
             layer1Output = np.zeros(4);
@@ -49,18 +50,20 @@ for y in range(len(n)):
             desiredOutput = sum(inputPat[j, 1:5])%2;
             errorOutputLayer = desiredOutput - forwardPassOutput;
             absoluteError[j] = abs(errorOutputLayer);
-            localGradientOutputLayerOld = localGradientOutputLayer;
             localGradientOutputLayer = errorOutputLayer* derivSigmoid(perceptron(outputLayer,layer1Output))
             #errorOutputLayer*forwardPassOutput*(1-forwardPassOutput) 
             
             for i in range(4):
-                localGradientLayer1Old[i] =localGradientLayer1[i];
                 localGradientLayer1[i] = derivSigmoid(perceptron(layer1[i],inputPat[j])) * localGradientOutputLayer*outputLayer[i+1]
                 #layer1Output[i+1]* (1-layer1Output[i+1]) * localGradientOutputLayer*outputLayer[i+1];
-            outputLayer = outputLayer+(localGradientOutputLayerOld*B*n[y]*layer1Output) + (n[y] * localGradientOutputLayer*layer1Output);
+            oldOutputChange = outputChange;
+            outputChange =(n[y] * localGradientOutputLayer*layer1Output);
+            outputLayer = outputLayer+oldOutputChange*B + outputChange;
             
             for i in range(4):
-                layer1[i] = layer1[i]+(localGradientLayer1Old[i]*B*n[y]*inputPat[j])+ (n[y] *localGradientLayer1[i]*inputPat[j]);
+                oldLayer1Change = layer1Change[i];
+                layer1Change[i] = (n[y] *localGradientLayer1[i]*inputPat[j]);
+                layer1[i] = layer1[i]+(oldLayer1Change*B)+ layer1Change[i];
 
         endCondition = True;
         meanError = 0;
