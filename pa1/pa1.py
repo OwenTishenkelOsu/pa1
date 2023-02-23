@@ -56,12 +56,12 @@ for y in range(len(n)):
             for i in range(4):
                 localGradientLayer1[i] = derivSigmoid(perceptron(layer1[i],inputPat[j])) * localGradientOutputLayer*outputLayer[i+1]
                 #layer1Output[i+1]* (1-layer1Output[i+1]) * localGradientOutputLayer*outputLayer[i+1];
-            oldOutputChange = outputChange;
+            oldOutputChange = np.copy(outputChange);
             outputChange =(n[y] * localGradientOutputLayer*layer1Output);
             outputLayer = outputLayer+oldOutputChange*B + outputChange;
             
             for i in range(4):
-                oldLayer1Change = layer1Change[i];
+                oldLayer1Change = np.copy(layer1Change[i]);
                 layer1Change[i] = (n[y] *localGradientLayer1[i]*inputPat[j]);
                 layer1[i] = layer1[i]+(oldLayer1Change*B)+ layer1Change[i];
 
