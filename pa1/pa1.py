@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 def sigmoid(v):
     return 1/(1+math.exp(-v));
 def derivSigmoid(v):
+    math.pow((1+math.exp(-v)),2)
     return math.exp(-v)/math.pow(1+math.exp(-v),2)
 def perceptron(w,x):
     return np.matmul(w,x);
@@ -23,6 +24,7 @@ def desiredOutput(inputPattern):
     return sum(inputPattern)%2
 
 n = [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
+B = 0.9;
 epoch = np.zeros(10);
 meanSquareError = [[] for val in n]
 inputPat = inputPatternGen();
@@ -32,7 +34,11 @@ for y in range(len(n)):
     endCondition = False
     for i in range(4):
         layer1[i, 0:5] = randWeightBias();
+        
     outputLayer = randWeightBias();
+    localGradientOutputLayer = 0;
+    localGradientLayer1 = np.zeros(4);
+    localGradientLayer1Old = np.zeros(4)
     while not endCondition:
         for j in range(len(inputPat)):
             layer1Output = np.zeros(4);
@@ -43,17 +49,18 @@ for y in range(len(n)):
             desiredOutput = sum(inputPat[j, 1:5])%2;
             errorOutputLayer = desiredOutput - forwardPassOutput;
             absoluteError[j] = abs(errorOutputLayer);
+            localGradientOutputLayerOld = localGradientOutputLayer;
             localGradientOutputLayer = errorOutputLayer* derivSigmoid(perceptron(outputLayer,layer1Output))
             #errorOutputLayer*forwardPassOutput*(1-forwardPassOutput) 
-            localGradientLayer1 = np.zeros(4);
             
             for i in range(4):
+                localGradientLayer1Old[i] =localGradientLayer1[i];
                 localGradientLayer1[i] = derivSigmoid(perceptron(layer1[i],inputPat[j])) * localGradientOutputLayer*outputLayer[i+1]
                 #layer1Output[i+1]* (1-layer1Output[i+1]) * localGradientOutputLayer*outputLayer[i+1];
-            outputLayer = outputLayer + (n[y] * localGradientOutputLayer*layer1Output);
+            outputLayer = outputLayer+(localGradientOutputLayerOld*B*n[y]*layer1Output) + (n[y] * localGradientOutputLayer*layer1Output);
             
             for i in range(4):
-                layer1[i] = layer1[i]+ n[y] *localGradientLayer1[i]*inputPat[j];
+                layer1[i] = layer1[i]+(localGradientLayer1Old[i]*B*n[y]*inputPat[j])+ (n[y] *localGradientLayer1[i]*inputPat[j]);
 
         endCondition = True;
         meanError = 0;
@@ -77,7 +84,7 @@ for val in range(len(n)):
     plt.ylabel('Mean Square Error')
   
     # giving a title to my graph
-    plt.title('Learning Curve of '+str(n[val]))
+    plt.title('Learning Curve of '+str(n[val] +". Momentum:"+str(B)));
   
     # function to show the plot
     plt.show()
